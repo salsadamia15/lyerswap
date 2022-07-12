@@ -111,7 +111,8 @@ const Swap: FC<SwapProps> = ({ settings, destNetwork, destAddress, lockAddress, 
   let isPartnerWallet = isPartnerAddress && availablePartners[addressSource].baseObject.is_wallet;
   let initialNetwork =
     availableNetworks.find(x => x.baseObject.code.toUpperCase() === destNetwork?.toUpperCase() && x.isEnabled)
-    ?? availableNetworks.find(x => x.isEnabled && x.isDefault);
+    ?? availableNetworks.find(x => x.isEnabled && x.isDefault)
+    ?? availableNetworks.filter(x => x.isEnabled)[0]
 
   if (lockNetwork) {
     availableNetworks.forEach(x => {

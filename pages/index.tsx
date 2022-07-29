@@ -14,7 +14,7 @@ export default function Home({ data, query }: InferGetServerSidePropsType<typeof
         <div className='flex flex-col space-y-5 animate-fade-in'>
           <SettingsProvider data={data}>
             <QueryProvider query={query}>
-                <Swap />
+              <Swap />
             </QueryProvider>
           </SettingsProvider>
         </div>
@@ -34,14 +34,9 @@ export async function getServerSideProps(context) {
   var apiClient = new LayerSwapApiClient();
   const data = await apiClient.fetchSettingsAsync()
   var networks: CryptoNetwork[] = [];
-  if (process.env.IS_TESTING == "false") {
-    data.networks.forEach((element) => {
-      if (!element.is_test_net) networks.push(element);
-    });
-  }
-  else {
-    networks = data.networks;
-  }
+  data.networks.forEach((element) => {
+    if (!element.is_test_net || element.code.includes("ZKSPACE")) networks.push(element);
+  });
 
   data.networks = networks;
   return {

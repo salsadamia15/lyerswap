@@ -98,7 +98,7 @@ function WizardHeader({ wrapperWidth }: { wrapperWidth: number }) {
       router.push({
           pathname: "/",
           query: router.query
-      })
+      }, "/", { shallow: true })
   }, [router.query])
 
    return <>

@@ -49,7 +49,7 @@ const SwapDetails = ({ settings }: InferGetServerSidePropsType<typeof getServerS
                   <SwapDataProvider >
                     <UserExchangeProvider>
                       <FormWizardProvider wizard={SwapWizard} initialStep={"Overview"} initialLoading={true}>
-                        <Wizard />
+                       <div>Swap wizard under development</div>
                       </FormWizardProvider >
                     </UserExchangeProvider>
                   </SwapDataProvider >

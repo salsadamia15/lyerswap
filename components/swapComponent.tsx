@@ -5,16 +5,17 @@ import { SwapDataProvider } from '../context/swap';
 import { AuthProvider } from '../context/authContext';
 import { UserExchangeProvider } from '../context/userExchange';
 import Wizard from './Wizard/Wizard';
-import { FormWizardSteps } from '../Models/Wizard';
+import { BaseWizard, FormWizardSteps } from '../Models/Wizard';
 import EmailStep from './Wizard/Steps/EmailStep';
 import CodeStep from './Wizard/Steps/CodeStep';
-import { FormWizardProvider } from '../context/formWizardProvider';
+import { FormWizardProvider, useFormWizardState } from '../context/formWizardProvider';
 import APIKeyStep from './Wizard/Steps/APIKeyStep';
 import AccountConnectStep from './Wizard/Steps/AccountConnectStep';
 import { MenuProvider } from '../context/menu';
 import IntroCard from './introCard';
 import SwapConfirmationStep from './Wizard/Steps/SwapConfirmationStep';
 import OfframpAccountConnectStep from './Wizard/Steps/OfframpAccountConnectStep';
+import { Transition } from '@headlessui/react';
 
 
 const FormWizard: FormWizardSteps = {
@@ -27,6 +28,7 @@ const FormWizard: FormWizardSteps = {
   "SwapConfirmation": { title: "Swap confirmation", content: SwapConfirmationStep, positionPercent: 60 },
 }
 
+
 const Swap: FC = () => {
 
   return (
@@ -37,7 +39,26 @@ const Swap: FC = () => {
             <SwapDataProvider >
               <UserExchangeProvider>
                 <FormWizardProvider wizard={FormWizard} initialStep={"SwapForm"} initialLoading={true}>
-                  <Wizard />
+                  <Wizard>
+                    <WizardStep step='SwapForm'>
+                      <MainStep />
+                    </WizardStep>
+                    <WizardStep step='Email'>
+                      <EmailStep />
+                    </WizardStep>
+                    <WizardStep step='ExchangeOAuth'>
+                      <AccountConnectStep />
+                    </WizardStep>
+                    <WizardStep step='OffRampExchangeOAuth'>
+                      <OfframpAccountConnectStep />
+                    </WizardStep>
+                    <WizardStep step='ExchangeApiCredentials'>
+                      <APIKeyStep />
+                    </WizardStep>
+                    <WizardStep step='SwapConfirmation'>
+                      <SwapConfirmationStep />
+                    </WizardStep>
+                  </Wizard>
                 </FormWizardProvider >
               </UserExchangeProvider>
             </SwapDataProvider >
@@ -48,5 +69,40 @@ const Swap: FC = () => {
     </div >
   )
 };
+
+type StepPorps = {
+  step: string
+}
+const WizardStep: FC<StepPorps> = ({ step, children }) => {
+  const { currentStep, moving, wrapperWidth } = useFormWizardState<BaseWizard>()
+
+  return <Transition
+    appear={false}
+    unmount={false}
+    show={step === currentStep}
+    enter="transform transition ease-in-out duration-500"
+    enterFrom={
+      moving === "right"
+        ? `translate-x-96 opacity-0`
+        : `-translate-x-96 opacity-0`
+    }
+    enterTo={`translate-x-0 opacity-100`}
+    leave="transform transition ease-in-out duration-500"
+    leaveFrom={`translate-x-0 opacity-100`}
+    leaveTo={
+      moving === "right"
+        ? `-translate-x-96 opacity-0`
+        : `translate-x-96 opacity-0`
+    }
+    className={`${step === currentStep ? 'w-full' : 'w-0'} overflow-visible`}
+    as="div"
+  >
+    <div
+      style={{ width: `${wrapperWidth}px`, minHeight: '504px', height: '100%' }}>
+      {children}
+    </div>
+  </Transition>
+}
+
 
 export default Swap;

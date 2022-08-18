@@ -19,7 +19,7 @@ import TokenService from '../../../lib/TokenService';
 import { BransferApiClient } from '../../../lib/bransferApiClients';
 import { CreateSwapParams } from '../../../lib/layerSwapApiClient';
 
-const SwapConfirmationStep: FC<BaseStepProps> = ({ current }) => {
+const SwapConfirmationStep: FC = () => {
     const [confirm_right_wallet, setConfirm_right_wallet] = useState(false)
     const [confirm_right_information, setConfirm_right_information] = useState(false)
     const [towFactorCode, setTwoFactorCode] = useState("")

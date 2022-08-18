@@ -7,13 +7,13 @@ import LayerswapMenu from '../LayerswapMenu';
 import LayerSwapLogo from '../icons/layerSwapLogo';
 import { useRouter } from 'next/router';
 
-const Wizard: FC = () => {
+const Wizard: FC = ({ children }) => {
 
-   const [wrapperWidth, setWrapperWidth] = useState(1);
    const wrapper = useRef(null);
-   const { wizard, currentStep, moving, loading: loadingWizard } = useFormWizardState<BaseWizard>()
-
+   const { wizard, currentStep, moving, loading: loadingWizard, wrapperWidth } = useFormWizardState<BaseWizard>()
+   const { setWrapperWidth } = useFormWizardaUpdate<BaseWizard>()
    const loading = !wizard || loadingWizard
+
    useEffect(() => {
       function handleResize() {
          if (wrapper.current !== null) {
@@ -41,38 +41,7 @@ const Wizard: FC = () => {
             <div className="flex items-start"
                ref={wrapper}>
                <div className={`flex flex-nowrap min-h-480  ${loading ? 'invisible' : 'visible animate-fade-in-down'}`}>
-                  {
-                     Object.keys(wizard).map((step, index) => {
-                        const Content = (wizard as BaseWizard)[step].content
-                        return <Transition
-                           key={index}
-                           appear={false}
-                           unmount={false}
-                           show={step === currentStep}
-                           enter="transform transition ease-in-out duration-500"
-                           enterFrom={
-                              moving === "right"
-                                 ? `translate-x-96 opacity-0`
-                                 : `-translate-x-96 opacity-0`
-                           }
-                           enterTo={`translate-x-0 opacity-100`}
-                           leave="transform transition ease-in-out duration-500"
-                           leaveFrom={`translate-x-0 opacity-100`}
-                           leaveTo={
-                              moving === "right"
-                                 ? `-translate-x-96 opacity-0`
-                                 : `translate-x-96 opacity-0`
-                           }
-                           className={`${step === currentStep ? 'w-full' : 'w-0'} overflow-visible`}
-                           as="div"
-                        >
-                           <div
-                              style={{ width: `${wrapperWidth}px`, minHeight: '504px', height: '100%' }}>
-                              <Content current={step === currentStep} />
-                           </div>
-                        </Transition>
-                     })
-                  }
+                  {children}
                </div>
             </div>
          </div>
@@ -87,10 +56,10 @@ function WizardHeader({ wrapperWidth }: { wrapperWidth: number }) {
 
    const handleGoHome = useCallback(() => {
       router.push({
-          pathname: "/",
-          query: router.query
+         pathname: "/",
+         query: router.query
       })
-  }, [router.query])
+   }, [router.query])
 
    return <>
       <div className="w-full flex items-center justify-between px-8 mt-3 h-[44px]" >

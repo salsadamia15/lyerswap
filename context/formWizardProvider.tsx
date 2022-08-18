@@ -10,12 +10,14 @@ export type WizardProvider<Type> = {
     loading: boolean,
     error: string,
     wizard: Type,
+    wrapperWidth: number,
 }
 
 type UpdateInterface<Type> = {
     goToStep: (step: keyof Type) => void,
     goBack: () => void,
     setLoading: (value: boolean) => void,
+    setWrapperWidth: (value: number) => void
 }
 
 export function FormWizardProvider<Type extends BaseWizard>({ children, wizard, initialStep, initialLoading }: { children, wizard: Type, initialStep: keyof Type, initialLoading?: boolean }) {
@@ -23,6 +25,7 @@ export function FormWizardProvider<Type extends BaseWizard>({ children, wizard, 
     const [currentStep, setCurrentStep] = useState<keyof Type>(initialStep)
     const [moving, setmoving] = useState("right")
     const [loading, setLoading] = useState(initialLoading)
+    const [wrapperWidth, setWrapperWidth] = useState(1);
 
     const goToStep = useCallback((step: keyof Type) => {
         const currentPosition = Object.keys(wizard).findIndex(k => k === currentStep)
@@ -49,8 +52,8 @@ export function FormWizardProvider<Type extends BaseWizard>({ children, wizard, 
     }, [currentStep])
 
     return (
-        <FormWizardStateContext.Provider value={{ currentStep, moving, loading, wizard }}>
-            <FormWizardStateUpdateContext.Provider value={{ goToStep, goBack, setLoading }}>
+        <FormWizardStateContext.Provider value={{ currentStep, moving, loading, wizard, wrapperWidth }}>
+            <FormWizardStateUpdateContext.Provider value={{ goToStep, goBack, setLoading, setWrapperWidth }}>
                 {children}
             </FormWizardStateUpdateContext.Provider>
         </FormWizardStateContext.Provider >

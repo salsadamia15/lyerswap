@@ -5,7 +5,6 @@ import { InferGetServerSidePropsType } from 'next'
 import { CryptoNetwork } from '../Models/CryptoNetwork'
 import { SettingsProvider } from '../context/settings'
 import { QueryProvider } from '../context/query'
-import { AccountProvider } from '../context/account'
 import KnownIds from '../lib/knownIds'
 
 export default function Home({ response, query }: InferGetServerSidePropsType<typeof getServerSideProps>) {
@@ -36,7 +35,7 @@ export async function getServerSideProps(context) {
   var apiClient = new LayerSwapApiClient();
   const response = await apiClient.fetchSettingsAsync()
   var networks: CryptoNetwork[] = [];
-  data.networks.forEach((element) => {
+  response.data.networks.forEach((element) => {
     if (!element.is_test_net || element.id.toLowerCase() == KnownIds.Networks.StarkNetGoerliId) networks.push(element);
   });
 

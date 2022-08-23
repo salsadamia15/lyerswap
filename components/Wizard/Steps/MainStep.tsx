@@ -34,6 +34,7 @@ import KnownIds from "../../../lib/knownIds";
 import MainStepValidation from "../../../lib/mainStepValidator";
 import SwapOptionsToggle from "../../SwapOptionsToggle";
 import { BransferApiClient } from "../../../lib/bransferApiClients";
+import Banner from "../../banner";
 import { CalculateMaxAllowedAmount, CalculateMinAllowedAmount } from "../../../lib/fees";
 import { ConnectedFocusError } from "../../../lib/external";
 
@@ -137,7 +138,7 @@ const NetworkField = React.forwardRef((props: any, ref: any) => {
             name: n.name,
             order: n.order,
             imgSrc: n.logo_url,
-            isAvailable: !lockNetwork && !n.is_test_net,
+            isAvailable: !lockNetwork, //TODO clarify testnets && !n.is_test_net,
             isEnabled: n.is_enabled && data.currencies.some(c => c.is_enabled && c.network_id === n.id && (swapType === "offramp" || c.exchanges.some(ce => ce.exchange_id === exchange?.baseObject?.id))),
             isDefault: n.is_default
         })).sort(sortingByOrder);
@@ -154,7 +155,7 @@ const NetworkField = React.forwardRef((props: any, ref: any) => {
 
 const AmountField = React.forwardRef((props: any, ref: any) => {
 
-    const { values: { currency, exchange, swapType } } = useFormikContext<SwapFormValues>();
+    const { values: { currency, swapType, exchange } } = useFormikContext<SwapFormValues>();
     const name = "amount"
     let minAllowedAmount = CalculateMinAllowedAmount(currency?.baseObject, exchange?.baseObject, swapType);
     let maxAllowedAmount = CalculateMaxAllowedAmount(currency?.baseObject, swapType);

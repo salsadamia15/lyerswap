@@ -14,8 +14,6 @@ import AccountConnectStep from './Wizard/Steps/AccountConnectStep';
 import { MenuProvider } from '../context/menu';
 import IntroCard from './introCard';
 import SwapConfirmationStep from './Wizard/Steps/SwapConfirmationStep';
-import OfframpAccountConnectStep from './Wizard/Steps/OfframpAccountConnectStep';
-import { Transition } from '@headlessui/react';
 
 
 const FormWizard: FormWizardSteps = {

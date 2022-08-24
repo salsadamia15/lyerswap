@@ -13,40 +13,28 @@ import SwapConfirmationStep from './Steps/SwapConfirmationStep';
 import CodeStep from './Steps/CodeStep';
 
 
-const FormWizard: FormWizardSteps = {
-    "SwapForm": { title: "Swap", content: MainStep, navigationDisabled: true, positionPercent: 0 },
-    "Email": { title: "Email confirmation", content: EmailStep, dismissOnBack: true, positionPercent: 30 },
-    "Code": { title: "Code", content: CodeStep, dismissOnBack: true, navigationDisabled: true, positionPercent: 35 },
-    "ExchangeOAuth": { title: "OAuth flow", content: AccountConnectStep, dismissOnBack: true, positionPercent: 45 },
-    "OffRampExchangeOAuth": { title: "OAuth flow", content: OfframpAccountConnectStep, dismissOnBack: true, positionPercent: 45 },
-    "ExchangeApiCredentials": { title: "Please provide Read-only API keys", content: APIKeyStep, dismissOnBack: true, positionPercent: 50 },
-    "SwapConfirmation": { title: "Swap confirmation", content: SwapConfirmationStep, positionPercent: 60 },
-}
-
 const CreateSwap: FC = () => {
     return (
-        <FormWizardProvider wizard={FormWizard} initialStep={"SwapForm"} initialLoading={true}>
-            <Wizard>
-                <WizardStep step='SwapForm'>
-                    <MainStep />
-                </WizardStep>
-                <WizardStep step='Email'>
-                    <EmailStep />
-                </WizardStep>
-                <WizardStep step='ExchangeOAuth'>
-                    <AccountConnectStep />
-                </WizardStep>
-                <WizardStep step='OffRampExchangeOAuth'>
-                    <OfframpAccountConnectStep />
-                </WizardStep>
-                <WizardStep step='ExchangeApiCredentials'>
-                    <APIKeyStep />
-                </WizardStep>
-                <WizardStep step='SwapConfirmation'>
-                    <SwapConfirmationStep />
-                </WizardStep>
-            </Wizard>
-        </FormWizardProvider >
+        <Wizard>
+            <WizardStep step='SwapForm'>
+                <MainStep />
+            </WizardStep>
+            <WizardStep step='Email'>
+                <EmailStep />
+            </WizardStep>
+            <WizardStep step='ExchangeOAuth'>
+                <AccountConnectStep />
+            </WizardStep>
+            <WizardStep step='OffRampExchangeOAuth'>
+                <OfframpAccountConnectStep />
+            </WizardStep>
+            <WizardStep step='ExchangeApiCredentials'>
+                <APIKeyStep />
+            </WizardStep>
+            <WizardStep step='SwapConfirmation'>
+                <SwapConfirmationStep />
+            </WizardStep>
+        </Wizard>
     )
 };
 

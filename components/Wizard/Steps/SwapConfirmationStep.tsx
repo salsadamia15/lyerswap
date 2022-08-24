@@ -24,7 +24,7 @@ interface TwoFACodeFormValues {
     TwoFACode: string
 }
 
-const SwapConfirmationStep: FC<BaseStepProps> = ({ current }) => {
+const SwapConfirmationStep: FC= () => {
     const { swapFormData, swap } = useSwapDataState()
     if (!swapFormData) {
         return null;

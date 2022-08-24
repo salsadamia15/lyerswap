@@ -28,9 +28,7 @@ export function FormWizardProvider<Type extends BaseWizard>({ children, wizard, 
     const [wrapperWidth, setWrapperWidth] = useState(1);
 
     const goToStep = useCallback((step: keyof Type) => {
-        const currentPosition = Object.keys(wizard).findIndex(k => k === currentStep)
-        const nextPosition = Object.keys(wizard).findIndex(k => k === step)
-        setmoving(currentPosition < nextPosition ? "right" : "left")
+        setmoving("right")
         setCurrentStep(step)
     }, [currentStep])
 

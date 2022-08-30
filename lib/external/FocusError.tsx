@@ -12,7 +12,7 @@ export interface FocusErrorProps {
   /**
    * Values from Formik provider.
    */
-  formik: 
+  formik:
   FormikContextType<FormikValues>
   /**
    * Time in ms to execute the focus in the component with the error, by default 100ms.
@@ -21,14 +21,15 @@ export interface FocusErrorProps {
   onFocus?: () => void
 }
 
-export function FocusError({
-  formik: { isSubmitting, touched, isValidating, errors },
-  focusDelay = 100,
-  onFocus
-}: FocusErrorProps) {
+export function FocusError(props: FocusErrorProps) {
+  const {
+    formik: { isSubmitting, touched, isValidating, errors } = {},
+    focusDelay = 100,
+    onFocus
+  } = props
+
   useEffect(() => {
     if (!isValidating) {
-
       const flattedErrors = flattenToLodashFormat(errors);
       const errorNames = Object.keys(flattedErrors).reduce((prev, key) => {
         if (getIn(errors, key)) {
@@ -41,8 +42,7 @@ export function FocusError({
         let errorElement: HTMLElement | null;
 
         errorNames.forEach((errorKey) => {
-          if (Object.keys(touched).find(x=> x == errorKey))
-          {
+          if (Object.keys(touched).find(x => x == errorKey)) {
             return
           }
           const selector = `[name="${errorKey}"]`;

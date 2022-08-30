@@ -1,5 +1,4 @@
 import { FC, Fragment, useState } from 'react'
-import { Link } from '@imtbl/imx-sdk';
 import { LinkIcon, XIcon } from '@heroicons/react/outline';
 import SubmitButton from '../../buttons/submitButton';
 import { Combobox, Transition } from '@headlessui/react';
@@ -19,6 +18,8 @@ const ConnectImmutableX: FC<Props> = ({ isOpen, onClose }) => {
     async function onImmutableConnectClick() {
         try {
             setLoading(true)
+            const { Link }  = (await import('@imtbl/imx-sdk')).default;
+
             const linkSdk = new Link(linkAddress);
             var connected = await linkSdk.setup({});
             if (connected && connected.address)

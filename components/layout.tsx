@@ -5,6 +5,7 @@ import FooterComponent from "./footerComponent"
 import { useRouter } from "next/router";
 import { Toaster } from 'react-hot-toast';
 import { SildeOverRef } from "./SlideOver";
+import { IntercomProvider } from 'react-use-intercom';
 
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
   hideFooter?: boolean;
   hideNavbar?: boolean;
 };
+const INTERCOM_APP_ID = 'h5zisg78'
 
 export default function Layout({ hideFooter, hideNavbar, children }: Props) {
   const router = useRouter();
@@ -67,9 +69,13 @@ export default function Layout({ hideFooter, hideNavbar, children }: Props) {
           <div className={`top-backdrop ${loading ? 'animate-pulse' : ''}`}></div>
 
           {hideNavbar ?? <Navbar />}
+          <IntercomProvider appId={INTERCOM_APP_ID}>
+
           <div className={loading ? "animate-pulse" : ""}>
             {children}
           </div>
+          </IntercomProvider>
+
           {hideFooter ?? <FooterComponent />}
         </div>
       </main>

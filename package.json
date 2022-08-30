@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "debug": "next dev",
+    "analyze":"cross-env ANALYZE=true next build",
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
@@ -40,6 +41,8 @@
     "swr": "^1.0.1"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^12.2.5",
+    "cross-env": "^7.0.3",
     "@types/bn.js": "^5.1.0",
     "@types/node": "^16.11.7",
     "@types/react": "^17.0.34",

@@ -1,4 +1,8 @@
-module.exports = {
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true'
+})
+
+module.exports = withBundleAnalyzer({
   i18n: {
     locales: ["en"],
     defaultLocale: "en",
@@ -7,4 +11,4 @@ module.exports = {
     domains: ["bransferstorage.blob.core.windows.net"],
   },
   reactStrictMode: false
-};
+});

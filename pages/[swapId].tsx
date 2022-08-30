@@ -64,8 +64,6 @@ const SwapDetails = ({ settings }: InferGetServerSidePropsType<typeof getServerS
   )
 }
 
-const CACHE_PATH = ".settings";
-
 export const getServerSideProps = async (ctx) => {
   const params = ctx.params;
   let isValidGuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(params.swapId);
@@ -79,30 +77,10 @@ export const getServerSideProps = async (ctx) => {
   }
 
   let settings: LayerSwapSettings;
-  try {
-    settings = JSON.parse(
-      fs.readFileSync(path.join(__dirname, CACHE_PATH), 'utf8')
-    )
-  } catch (error) {
-    console.log('Cache not initialized')
-  }
 
   if (!settings) {
     var apiClient = new LayerSwapApiClient();
     const data = await apiClient.fetchSettingsAsync()
-
-    try {
-      fs.writeFileSync(
-        path.join(__dirname, CACHE_PATH),
-        JSON.stringify(data),
-        'utf8'
-      )
-      console.log('Wrote to settings cache')
-    } catch (error) {
-      console.log('ERROR WRITING SETTINGS CACHE TO FILE')
-      console.log(error)
-    }
-
     settings = data
   }
 

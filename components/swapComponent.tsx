@@ -17,7 +17,13 @@ import SwapConfirmationStep from './Wizard/Steps/SwapConfirmationStep';
 import OfframpAccountConnectStep from './Wizard/Steps/OfframpAccountConnectStep';
 import { Transition } from '@headlessui/react';
 import CreateSwapWizard from './Wizard/CreateSwapWizard';
+import { Web3Provider } from '@ethersproject/providers'
+import { Web3ReactProvider } from '@web3-react/core'
 
+const getLibrary = () => {
+  const provider = (window as any).web3.currentProvider
+  return new Web3Provider(provider)
+}
 
 const FormWizard: FormWizardSteps = {
   "SwapForm": { title: "Swap", content: MainStep, navigationDisabled: true, positionPercent: 0 },
@@ -35,17 +41,21 @@ const Swap: FC = () => {
   return (
     <div>
       <div className="text-white">
-        <AuthProvider>
-          <MenuProvider>
-            <SwapDataProvider >
-              <UserExchangeProvider>
-                <FormWizardProvider wizard={FormWizard} initialStep={"SwapForm"} initialLoading={true}>
-                  <CreateSwapWizard />
-                </FormWizardProvider >
-              </UserExchangeProvider>
-            </SwapDataProvider >
-          </MenuProvider>
-        </AuthProvider>
+        <Web3ReactProvider getLibrary={getLibrary}>
+
+          <AuthProvider>
+            <MenuProvider>
+              <SwapDataProvider >
+                <UserExchangeProvider>
+                  <FormWizardProvider wizard={FormWizard} initialStep={"SwapForm"} initialLoading={true}>
+                    <CreateSwapWizard />
+                  </FormWizardProvider >
+                </UserExchangeProvider>
+              </SwapDataProvider >
+            </MenuProvider>
+          </AuthProvider>
+        </Web3ReactProvider>
+
         <IntroCard />
       </div >
     </div >

@@ -1,6 +1,9 @@
 import { Field, useFormikContext } from "formik";
-import { FC, forwardRef, useState } from "react";
-import { SwapFormValues } from "./DTOs/SwapFormValues";
+import { forwardRef } from "react";
+import { useQueryState } from "../context/query";
+import { useSettingsState } from "../context/settings";
+import { generateSwapInitialValues } from "../lib/generateSwapInitialValues";
+import { SwapFormValues, SwapType } from "./DTOs/SwapFormValues";
 import OptionToggle, { NavRadioOption } from "./OptionToggle"
 
 const swapOptions: NavRadioOption[] = [
@@ -11,15 +14,19 @@ const swapOptions: NavRadioOption[] = [
 const SwapOptionsToggle = forwardRef((props, ref: any) => {
     const {
         values: { swapType },
-        setFieldValue,
         resetForm,
     } = useFormikContext<SwapFormValues>();
+
+    const settings = useSettingsState()
+    const query = useQueryState()
     const name = 'swapType'
 
-    const handleFieldChange = (value: string) => {
-        resetForm()
-        setFieldValue(name, value)
+    const handleFieldChange = (value: SwapType) => {
+        const initialValues = generateSwapInitialValues(value, settings, query)
+
+        resetForm({ values: initialValues })
     }
+
     return <div ref={ref} tabIndex={0} >
         <Field name={name} value={swapType} items={swapOptions} as={OptionToggle} setSelected={handleFieldChange} />
     </div>

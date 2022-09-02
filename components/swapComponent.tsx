@@ -15,6 +15,7 @@ import { MenuProvider } from '../context/menu';
 import IntroCard from './introCard';
 import SwapConfirmationStep from './Wizard/Steps/SwapConfirmationStep';
 import OfframpAccountConnectStep from './Wizard/Steps/OfframpAccountConnectStep';
+import { useQueryState } from '../context/query';
 
 
 const FormWizard: FormWizardSteps = {
@@ -28,7 +29,7 @@ const FormWizard: FormWizardSteps = {
 }
 
 const Swap: FC = () => {
-
+  const query = useQueryState();
   return (
     <div>
       <div className="text-white">
@@ -43,7 +44,9 @@ const Swap: FC = () => {
             </SwapDataProvider >
           </MenuProvider>
         </AuthProvider>
-        <IntroCard />
+        {
+          !query.hideAboutCard && <IntroCard />
+        }
       </div >
     </div >
   )

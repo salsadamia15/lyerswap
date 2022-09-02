@@ -5,6 +5,7 @@ import FooterComponent from "./footerComponent"
 import { useRouter } from "next/router";
 import { Toaster } from 'react-hot-toast';
 import { SildeOverRef } from "./SlideOver";
+import { useQueryState } from "../context/query";
 
 
 type Props = {
@@ -15,7 +16,7 @@ type Props = {
 
 export default function Layout({ hideFooter, hideNavbar, children }: Props) {
   const router = useRouter();
-
+  const query = useQueryState();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -70,7 +71,7 @@ export default function Layout({ hideFooter, hideNavbar, children }: Props) {
           <div className={loading ? "animate-pulse" : ""}>
             {children}
           </div>
-          {hideFooter ?? <FooterComponent />}
+          {!hideFooter || !query?.hideAboutCard && <FooterComponent />}
         </div>
       </main>
     </div>

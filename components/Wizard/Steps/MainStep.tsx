@@ -132,7 +132,7 @@ const NetworkField = React.forwardRef((props: any, ref: any) => {
     const { data } = useSettingsState();
 
     const destNetworkIsAvailable = data.networks.some(n => n.code === destNetwork && n.is_enabled && (swapType === "onramp" || data?.currencies?.some(c => c.network_id === n.id && c.exchanges.some(ce => ce.is_off_ramp_enabled))))
-    
+
     const networkMenuItems: SelectMenuItem<CryptoNetwork>[] = data.networks
         .filter(n => swapType === "onramp" || data?.currencies?.some(c => c.is_enabled && c.network_id === n.id && c.exchanges.some(ce => ce.is_off_ramp_enabled)))
         .map(n => ({
@@ -381,9 +381,11 @@ export default function MainStep() {
                     <ConnectedFocusError />
                     <div className="px-8 h-full flex flex-col justify-between">
                         <div>
-                            <div className='my-4'>
-                                <SwapOptionsToggle />
-                            </div>
+                            {!query.hideOfframp &&
+                                < div className='my-4'>
+                                    <SwapOptionsToggle />
+                                </div>
+                            }
                             <div className={classNames(values.swapType === "offramp" ? 'w-full flex-col-reverse md:flex-row-reverse space-y-reverse md:space-x-reverse' : 'md:flex-row flex-col', 'flex justify-between w-full md:space-x-4 space-y-4 md:space-y-0 mb-3.5 leading-4')}>
                                 <div className="flex flex-col md:w-80 w-full">
                                     <ExchangesField ref={exchangeRef} />

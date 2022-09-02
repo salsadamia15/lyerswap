@@ -7,4 +7,6 @@ export interface QueryParams {
     addressSource?: string,
     coinbase_redirect?: string,
     asset?: string,
+    hideOfframp: boolean;
+    hideAboutCard: boolean;
 }

@@ -34,11 +34,11 @@ const SuccessfulStep: FC = () => {
                 {
                     data.networks && swap?.data.transaction_id &&
                     <div className="text-white mb-2.5 md:mb-5 md:mt-3 mt-0">
-                        <SubmitButton buttonStyle='filled' isDisabled={false} isSubmitting={false} icon={ExternalLinkIcon} onClick={() => window.open(data.networks.filter(x => x.code === swap?.data.network)[0]?.transaction_explorer_template.replace("{0}", swap?.data.transaction_id), '_blank')}>View in Explorer <ExternalLinkIcon className='ml-2 h-5 w-5' /></SubmitButton>
+                        <SubmitButton buttonStyle='filled' isDisabled={false} isSubmitting={false} icon={ExternalLinkIcon} onClick={() => location.href = data.networks.filter(x => x.code === swap?.data.network)[0]?.transaction_explorer_template.replace("{0}", swap?.data.transaction_id)}>View in Explorer <ExternalLinkIcon className='ml-2 h-5 w-5' /></SubmitButton>
                     </div>
                 }
                 <div className="w-full justify-center">
-                    <SubmitButton buttonStyle='outline' isDisabled={false} isSubmitting={false} icon={''} onClick={() => window.open('/')}>Swap more <ArrowRightIcon className='ml-2 h-5 w-5' /></SubmitButton>
+                    <SubmitButton buttonStyle='outline' isDisabled={false} isSubmitting={false} icon={''} onClick={() => window.open('/')}><span className='text-white'>Swap more </span><ArrowRightIcon className='ml-2 h-5 w-5 text-white' /></SubmitButton>
                 </div>
             </div>
         </>

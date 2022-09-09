@@ -302,7 +302,7 @@ export default function MainStep() {
                         return
                     }
                 } else if (values.network.baseObject.id == KnownIds.Networks.RhinoFiMainnetId) {
-                    const client = await axios.get(`https://api.deversifi.com/v1/trading/registrations/${values.destination_address}`)
+                    const client = await axios.get(`https://api.rhino.fi/v1/trading/registrations/${values.destination_address}`)
                     const isRegistered = await client.data?.isRegisteredOnDeversifi
                     if (!isRegistered) {
                         setConnectDeversifiIsOpen(true);

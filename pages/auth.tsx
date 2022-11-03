@@ -1,46 +1,29 @@
 import Layout from '../components/layout'
 import { AuthProvider } from '../context/authContext'
-import IntroCard from '../components/introCard'
 import { MenuProvider } from '../context/menu'
 import { FormWizardProvider } from '../context/formWizardProvider'
 import { AuthStep } from '../Models/Wizard'
 import AuthWizard from '../components/Wizard/AuthWizard'
-import { InferGetServerSidePropsType } from 'next'
-import LayerSwapApiClient from '../lib/layerSwapApiClient'
+import { InferGetStaticPropsType } from 'next'
 import LayerSwapAuthApiClient from '../lib/userAuthApiClient'
-import AppSettings from '../lib/AppSettings'
-import { SettingsProvider } from '../context/settings'
 
-export default function AuthPage({ response }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  LayerSwapAuthApiClient.identityBaseEndpoint = response.data.discovery.identity_url
+export default function AuthPage({ identityUrl }: InferGetStaticPropsType<typeof getStaticProps>) {
+  LayerSwapAuthApiClient.identityBaseEndpoint = identityUrl
 
   return (
     <Layout>
-      <SettingsProvider data={response.data}>
-        <AuthProvider>
-          <MenuProvider>
-            <FormWizardProvider initialStep={AuthStep.Email} initialLoading={false}>
-              <AuthWizard />
-            </FormWizardProvider >
-          </MenuProvider>
-        </AuthProvider>
-      </SettingsProvider>
+      <AuthProvider>
+        <MenuProvider>
+          <FormWizardProvider initialStep={AuthStep.Email} initialLoading={false}>
+            <AuthWizard />
+          </FormWizardProvider >
+        </MenuProvider>
+      </AuthProvider>
     </Layout>
   )
 }
-export async function getServerSideProps(context) {
-
-  context.res.setHeader(
-    'Cache-Control',
-    's-maxage=60, stale-while-revalidate'
-  );
-
-  var apiClient = new LayerSwapApiClient();
-  const response = await apiClient.fetchSettingsAsync()
-
-  LayerSwapAuthApiClient.identityBaseEndpoint = response.data.discovery.identity_url
-
+export async function getStaticProps() {
   return {
-    props: { response }
+    props: { identityUrl: 'https://identity-api-dev.layerswap.cloud' }
   }
 }

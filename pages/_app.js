@@ -16,7 +16,7 @@ function App({ Component, pageProps }) {
   const router = useRouter()
   return (
     <Web3ReactProvider getLibrary={getLibrary}>
-      <IntercomProvider appId={INTERCOM_APP_ID}>
+      <IntercomProvider appId={INTERCOM_APP_ID} initializeDelay='10000'>
         <Component key={router.asPath} {...pageProps} />
       </IntercomProvider>
     </Web3ReactProvider>)

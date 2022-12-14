@@ -46,6 +46,9 @@ export async function getServerSideProps(context) {
     's-maxage=60, stale-while-revalidate'
   );
 
+   if (context.query?.throw)
+    throw Error("asd")
+  
   var apiClient = new LayerSwapApiClient();
   const { data: settings } = await apiClient.GetSettingsAsync()
 

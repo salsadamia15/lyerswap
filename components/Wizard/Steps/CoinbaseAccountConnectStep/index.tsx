@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { FC, useCallback, useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast';
 import useSWR from 'swr';
@@ -156,6 +157,7 @@ const Authorize: FC<Props> = ({ onAuthorized, stickyFooter, onDoNotConnect, hide
                                     <LastScreen minimalAuthorizeAmount={minimalAuthorizeAmount} />
                                 </CarouselItem>
                             </Carousel>}
+                            <Link className='text-white' href="/blog/guidz/Privacy_Policy">GoToGuide</Link>
                         </div>
                 }
                 <div className="flex font-normal text-sm text-primary-text">

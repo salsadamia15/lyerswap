@@ -25,28 +25,25 @@ export default function UserGuide({
 }) {
     const router = useRouter();
 
+
     const handleGoBack = useCallback(() => {
         router.back()
     }, [router])
 
     return (
-        <Layout>
-            <div className="bg-darkblue shadow-card rounded-lg w-full flex content-center items-center justify-center mb-5 space-y-5 flex-col  container mx-auto max-w-3xl">
-                <Head>
-                    <title>{title}</title>
-                </Head>
-                <main>
-                    <MenuProvider>
-                        <HeaderWithMenu goBack={handleGoBack} />
-                    </MenuProvider>
-                    <div className="flex-col justify-center py-4 px-8 md:px-0 sm:px-6 lg:px-8">
-                        <div className="py-4 px-8 md:px-0 prose md:prose-xl text-primary-text">
-                            <MDXRemote {...mdxSource} components={componentOverrides} />
-                        </div>
+        <div className="bg-[#181C1F]">
+            <Head>
+                <title>{title}</title>
+            </Head>
+            <main>
+                <div className="flex flex-col justify-centr h-screen content-center items-center mb-5 space-y-5 container mx-auto max-w-3xl py-4 sm:px-6 lg:px-8">
+                    <div className="py-4 px-8 mt-6 md:px-0 prose-base prose-headings:text-white prose-a:text-primary-400 text-primary-text">
+                        <MDXRemote {...mdxSource} components={componentOverrides} />
                     </div>
-                </main>
-            </div>
-        </Layout>
+                    <button className='text-white' onClick={handleGoBack}>Go back</button>
+                </div> 
+            </main>
+        </div>
     )
 }
 

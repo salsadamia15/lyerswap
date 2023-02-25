@@ -99,38 +99,6 @@ module.exports = {
         'widget-footer': '-1px -28px 21px -6px rgb(14 20 38)',
         'card': '5px 5px 40px rgba(0, 0, 0, 0.2), 0px 0px 200px rgba(0, 0, 0, 0.43)',
       },
-      typography: (theme) => ({
-        DEFAULT: {
-          css: {
-            h1: {
-              color: '#FFF',
-              textAlign: 'center',
-            },
-            h2: {
-              color: '#FFF',
-              textAlign: 'center',
-            },
-            h3: {
-              color: '#FFF',
-            },
-            h4: {
-              color: '#FFF',
-            },
-            h5: {
-              color: '#FFF',
-            },
-            a: {
-              color: theme('colors.primary.400'),
-            },
-            strong: {
-              color: '#FFF'
-            },
-            blockquote: {
-              color: '#FFF'
-            }
-          },
-        }
-      }),
     },
   },
   variants: {

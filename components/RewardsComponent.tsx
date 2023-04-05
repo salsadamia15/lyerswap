@@ -108,7 +108,7 @@ function RewardsComponent() {
                                                                 <div className="h-5 w-5 relative">
                                                                     <Image
                                                                         src={`${resource_storage_url}/layerswap/currencies/${settings.campaigns[0].asset.toLowerCase()}.png`}
-                                                                        alt="Project Logo"
+                                                                        alt="Project  Logo"
                                                                         height="40"
                                                                         width="40"
                                                                         loading="eager"

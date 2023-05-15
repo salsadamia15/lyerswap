@@ -10,9 +10,9 @@ import {
     useWaitForTransaction,
     useNetwork
 } from "wagmi";
-import { BigNumber, utils } from 'ethers';
+import { utils } from 'ethers';
 import { erc20ABI } from 'wagmi'
-import { ArrowUpDown, Wallet, RefreshCw } from "lucide-react";
+import { Wallet } from "lucide-react";
 import SubmitButton from "../../../buttons/submitButton";
 import FailIcon from "../../../icons/FailIcon";
 
@@ -56,9 +56,11 @@ const TransferFromWallet: FC<Props> = ({ networkDisplayName,
         },
         chainId: chainId,
     })
+
     useEffect(() => {
-        networkChange.reset()
-    }, [activeChain])
+        if (activeChain?.id === chainId)
+            networkChange.reset()
+    }, [activeChain, chainId])
 
     const transaction = useSendTransaction(sendTransactionPrepare?.config)
     const contractPrepareEnabled = isConnected && !!tokenContractAddress
@@ -125,18 +127,17 @@ const TransferFromWallet: FC<Props> = ({ networkDisplayName,
         ButtonClicked: buttonClicked,
         waitForTransaction,
         Network: networkDisplayName,
+        chainIsCorrect: activeChain?.id === chainId,
         transactionDetected
     })
 
     return <>
         {
             actionMessage?.Message &&
-            <div>
-                <WalletMessage
-                    status={actionMessage.Status}
-                    header={actionMessage.Message.Header}
-                    details={actionMessage.Message.Details} />
-            </div>
+            <WalletMessage
+                status={actionMessage.Status}
+                header={actionMessage.Message.Header}
+                details={actionMessage.Message.Details} />
         }
         {
             actionMessage?.ButtonText &&
@@ -240,7 +241,8 @@ type GetActionsMessageProps = {
     waitForTransaction?: ActionData,
     transactionDetected: boolean,
     Network?: string,
-    ButtonClicked?: boolean
+    ButtonClicked?: boolean,
+    chainIsCorrect?: boolean
 }
 type GetActionsMessageRes = {
     ButtonText?: string;
@@ -260,6 +262,7 @@ const getActionsMessages = ({ networkChange,
     waitForTransaction,
     transactionDetected,
     sendTransactionPrepare,
+    chainIsCorrect,
     contractWritePrepare }: GetActionsMessageProps): GetActionsMessageRes => {
 
     if (waitForTransaction?.isLoading || transactionDetected) {
@@ -271,12 +274,13 @@ const getActionsMessages = ({ networkChange,
             }
         }
     }
-
     if (!ButtonClicked)
         return {
             ButtonText: "Send from wallet",
             ButtonIcon: <Wallet />
         }
+
+
 
     if (networkChange?.isLoading) {
         return {
@@ -293,7 +297,7 @@ const getActionsMessages = ({ networkChange,
             Status: "pending",
             Message: {
                 Header: 'Confirm in wallet',
-                Details: 'Please sign the transction with your wallet'
+                Details: 'Please confirm the transaction in your wallet'
             }
         }
     }
@@ -309,8 +313,6 @@ const getActionsMessages = ({ networkChange,
         }
     }
 
-
-
     if (contractWritePrepare?.isLoading || sendTransactionPrepare?.isLoading) {
         return {
             Status: "pending",
@@ -323,8 +325,10 @@ const getActionsMessages = ({ networkChange,
 
     if (contractWritePrepare?.isError || sendTransactionPrepare?.isError) {
         const error = contractWritePrepare?.error || sendTransactionPrepare?.error
-        const error_code = error?.['code']
-        if (error_code === 'INSUFFICIENT_FUNDS' || error_code === 'UNPREDICTABLE_GAS_LIMIT') {
+        const error_code = error?.['code'] || error?.["name"]
+        if (error_code === 'INSUFFICIENT_FUNDS'
+            || error_code === 'UNPREDICTABLE_GAS_LIMIT'
+            || (error_code === -32603 && error?.['data']?.['code'] === -32000)) {
             return {
                 ButtonText: "Try again",
                 Status: "error",
@@ -332,6 +336,11 @@ const getActionsMessages = ({ networkChange,
                     Header: 'Insufficient funds',
                     Details: 'The balance of the connected wallet is not enough'
                 }
+            }
+        }
+        if (error_code === 'NETWORK_ERROR' || error_code === "ChainMismatchError") {
+            return {
+                ButtonText: `Switch to ${Network}`,
             }
         }
     }
@@ -345,7 +354,7 @@ const getActionsMessages = ({ networkChange,
                 Status: "error",
                 Message: {
                     Header: 'Transaction rejected',
-                    Details: 'You’ve rejected signing the transaction in your wallet. Hit Try again to open the prompt again'
+                    Details: `You've rejected the transaction in your wallet. Click “Try again” to open the prompt again.`
                 }
             }
     }
@@ -363,7 +372,6 @@ const getActionsMessages = ({ networkChange,
             || transaction?.error
             || contractWrite?.error
         return {
-            ButtonIcon: <RefreshCw />,
             ButtonText: "Try again",
             Status: "error",
             Message: {
@@ -372,6 +380,8 @@ const getActionsMessages = ({ networkChange,
             }
         }
     }
+
+
     return {
         ButtonText: "Send from wallet",
         ButtonIcon: <Wallet />

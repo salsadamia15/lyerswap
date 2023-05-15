@@ -2,6 +2,7 @@ import { BlacklistedAddress } from "./BlacklistedAddress";
 import { CryptoNetwork } from "./CryptoNetwork";
 import { Currency } from "./Currency";
 import { Exchange } from "./Exchange";
+import { Layer } from "./Layer";
 import { Partner } from "./Partner";
 
 
@@ -15,13 +16,4 @@ export class LayerSwapSettings {
         resource_storage_url: string;
     }
     validSignatureisPresent?: boolean;
-    campaigns: {
-        name: string,
-        asset: string,
-        network_name: string,
-        percentage: number,
-        reward_limit_for_period: number,
-        reward_limit_period: number,
-        end_date: string
-    }[]
 };

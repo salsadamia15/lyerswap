@@ -12,12 +12,11 @@ import shortenAddress, { shortenEmail } from "../utils/ShortenAddress";
 import IconButton from "../buttons/iconButton";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
-import { useSettingsState } from "../../context/settings";
 import { useIntercom } from "react-use-intercom";
+import ChatIcon from "../icons/ChatIcon";
 
 export default function () {
     const { email, userType, userId } = useAuthState()
-    const { campaigns } = useSettingsState()
     const { setUserType } = useAuthDataUpdate()
     const router = useRouter();
     const { menuVisible } = useMenuState()
@@ -68,7 +67,7 @@ export default function () {
                                     }}
                                     className="relative z-20 py-1">
                                     <Menu.Items
-                                        className="font-bold text-sm text-left border border-darkblue-500 origin-top-right absolute -right-7 mt-2 w-fit min-w-[150px] rounded-md shadow-lg bg-darkblue-700 ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                        className="font-bold text-sm text-left border border-darkblue-500 origin-top-right absolute -right-7 mt-2 w-fit min-w-[150px] rounded-md shadow-lg bg-darkblue-900 ring-1 ring-black ring-opacity-5 focus:outline-none">
                                         <div className="relative z-30 py-1">
                                             {
                                                 isConnected &&
@@ -107,7 +106,7 @@ export default function () {
                                                                 </Item>
                                                             </Menu.Item>
                                                         }
-                                                        {router.pathname != '/rewards' && campaigns?.length > 0 &&
+                                                        {router.pathname != '/rewards' &&
                                                             <Menu.Item>
                                                                 <Item type={ItemType.link} pathname={"/rewards"} icon={<Gift className='h-4 w-4' />}>
                                                                     Rewards
@@ -119,7 +118,7 @@ export default function () {
                                                                 boot();
                                                                 show();
                                                                 updateWithProps()
-                                                            }} icon={<MessageCircle className='h-4 w-4' strokeWidth={3} />}>
+                                                            }} icon={<ChatIcon className='h-4 w-4' strokeWidth={2} />}>
                                                                 Get Help
                                                             </Item>
                                                         </Menu.Item>
@@ -163,7 +162,7 @@ export default function () {
                                                             Exchange Accounts
                                                         </Item>
                                                     </Menu.Item>
-                                                    {router.pathname != '/rewards' && campaigns?.length > 0 &&
+                                                    {router.pathname != '/rewards' &&
                                                         <Menu.Item>
                                                             <Item type={ItemType.link} pathname={"/rewards"} icon={<Gift className='h-4 w-4' />}>
                                                                 Rewards
@@ -171,6 +170,15 @@ export default function () {
                                                         </Menu.Item>
                                                     }
                                                     <hr className="horizontal-gradient" />
+                                                    <Menu.Item>
+                                                            <Item type={ItemType.button} onClick={() => {
+                                                                boot();
+                                                                show();
+                                                                updateWithProps()
+                                                            }} icon={<ChatIcon className='h-4 w-4' strokeWidth={2} />}>
+                                                                Get Help
+                                                            </Item>
+                                                        </Menu.Item>
                                                     <Menu.Item>
                                                         <Item type={ItemType.link} pathname='https://docs.layerswap.io/' target="_blank" icon={<BookOpen className='h-4 w-4' />} className="plausible-event-name=User+Docs">
                                                             User Docs

@@ -22,59 +22,68 @@ import Modal from "../modal/modal"
 import WalletIcon from "../icons/WalletIcon"
 
 export const ConnectedWallets = () => {
-    const { isConnected, connector } = useAccount();
-    const [account, setAccount] = useState<StarknetWindowObject>()
-    const [balance, setBalance] = useState(0)
+    const { isConnected } = useAccount();
+    const [accounts, setAccounts] = useState<StarknetWindowObject[]>([])
+    const [balances, setBalances] = useState([{ account: '', balance: 0 }])
     const [showModal, setShowModal] = useState(false)
     const starknet = getStarknet()
-    const walletAddress = account?.selectedAddress
 
     useEffect(() => {
         (async () => {
-            const lastConnectedWallet = await starknet.getLastConnectedWallet()
-            debugger
-            if (lastConnectedWallet) {
-                const res = await starknet.enable(lastConnectedWallet)
-                setAccount(res)
-                if (res) {
-                    const erc20Contract = new Contract(
-                        Erc20Abi,
-                        "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
-                        res?.account,
-                    )
-                    const balanceResult = await erc20Contract.balanceOf(res?.account?.address)
-                    const balanceInWei = BigNumber.from(uint256.uint256ToBN(balanceResult.balance as any).toString()).toString();
-                    const formattedResult = utils.formatUnits(balanceInWei, 18);
-                    setBalance(Number(formattedResult))
-                }
+            const connectedWallets = await starknet.getPreAuthorizedWallets()
+
+            if (connectedWallets) {
+                connectedWallets.forEach(async w => {
+                    const res = await starknet.enable(w)
+                    setAccounts([...accounts, res])
+                    if (accounts) {
+                        accounts.forEach(async a => {
+                            const erc20Contract = new Contract(
+                                Erc20Abi,
+                                "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                                a?.account,
+                            )
+                            const balanceResult = await erc20Contract.balanceOf(a?.account?.address)
+                            const balanceInWei = BigNumber.from(uint256.uint256ToBN(balanceResult.balance as any).toString()).toString();
+                            const formattedResult = utils.formatUnits(balanceInWei, 18);
+                            setBalances([...balances, { account: a.id, balance: Number(formattedResult) }])
+                        })
+                    }
+                })
             }
         })()
     }, [])
 
     const handleDisconnect = () => {
-        setAccount(null);
+        setAccounts(null);
         disconnect({ clearLastWallet: true })
     }
 
-    if (isConnected && account) {
+    if (isConnected && accounts?.length > 0) {
         return (
             <>
                 <IconButton onClick={() => setShowModal(true)} icon={
                     <WalletIcon className="h-6 w-6" strokeWidth="2" />
                 } />
                 <Modal header={'Connected wallets'} height="fit" show={showModal} setShow={setShowModal}>
-                    <div className="grid grid-cols-2 items-center place-items-center gap-5 mt-2">
-                        <StarknetWallet walletAddress={walletAddress} account={account} balance={balance} handleDisconnect={handleDisconnect} isButton />
+                    <div className="grid grid-cols-2 items-center place-items-center gap-2 mt-2">
+                        {
+                            accounts.map((a, index) => (
+                                <StarknetWallet walletAddress={a.selectedAddress} account={a} balance={balances.find(b => b.account === a.id)?.balance} handleDisconnect={handleDisconnect} isButton key={index} />
+                            ))
+                        }
                         <RainbowKitConnectWallet isButton />
                     </div>
                 </Modal>
             </>
         )
-    } else if (!isConnected && account) {
-        return <StarknetWallet walletAddress={walletAddress} account={account} balance={balance} handleDisconnect={handleDisconnect} />
-    } else if (isConnected && !account) {
+    } else if (!isConnected && accounts?.length > 0) {
+        return accounts.map((a, index) => (
+            <StarknetWallet walletAddress={a.selectedAddress} account={a} balance={balances.find(b => b.account === a.id)?.balance} handleDisconnect={handleDisconnect} key={index} />
+        ))
+    } else if (isConnected && !(accounts?.length > 0)) {
         return <RainbowKitConnectWallet />
-    } else if (!isConnected && !account) {
+    } else if (!isConnected && !(accounts?.length > 0)) {
         return <RainbowKitConnectWallet />
     }
 }

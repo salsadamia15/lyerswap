@@ -207,9 +207,6 @@ const TransferEthButton: FC<TransferETHButtonProps> = ({
                     : <span>Send from wallet</span>}
             </ButtonWrapper>
         }
-        {
-            isLoading && <>asdas</>
-        }
     </>
 }
 

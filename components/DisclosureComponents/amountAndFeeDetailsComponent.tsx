@@ -3,14 +3,15 @@ import { useSettingsState } from '../../context/settings';
 import { SwapFormValues } from '../DTOs/SwapFormValues';
 import ClickTooltip from '../Tooltips/ClickTooltip';
 import { truncateDecimals } from '../utils/RoundDecimals';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../Accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../shadcn/accordion';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { GetDefaultNetwork, GetNetworkCurrency } from '../../helpers/settingsHelper';
 import { ApiResponse } from '../../Models/ApiResponse';
 import LayerSwapApiClient, { Campaigns } from '../../lib/layerSwapApiClient';
 import useSWR from 'swr'
-
+import AverageCompletionTime from '../Common/AverageCompletionTime';
+import KnownInternalNames from '../../lib/knownIds';
 
 export default function AmountAndFeeDetails({ values }: { values: SwapFormValues }) {
     const { networks, currencies, resolveImgSrc } = useSettingsState()
@@ -40,9 +41,11 @@ export default function AmountAndFeeDetails({ values }: { values: SwapFormValues
     const refuel = truncateDecimals(CaluclateRefuelAmount(values, currencies).refuelAmountInNativeCurrency, refuel_native_currency?.precision)
     const currencyName = currency?.asset || " "
 
+    const destinationNetwork = GetDefaultNetwork(to, currency?.asset)
+
     return (
         <>
-            <div className="mx-auto relative w-full rounded-lg border border-darkblue-500 hover:border-darkblue-300 bg-darkblue-700 px-3.5 py-3 z-[1] transition-all duration-200">
+            <div className="mx-auto relative w-full rounded-lg border border-secondary-500 hover:border-secondary-300 bg-secondary-700 px-3.5 py-3 z-[1] transition-all duration-200">
                 <Accordion type="single" collapsible>
                     <AccordionItem value={'item-1'}>
                         <AccordionTrigger className="items-center flex w-full relative gap-2 rounded-lg text-left text-base font-medium">
@@ -50,7 +53,7 @@ export default function AmountAndFeeDetails({ values }: { values: SwapFormValues
                             <div className='flex items-center space-x-2'>
                                 <span className="text-sm md:text-base">
                                     {
-                                        parsedReceiveAmount ?
+                                        from && to && parsedReceiveAmount ?
                                             <div className="font-semibold md:font-bold text-right leading-4">
                                                 <p>
                                                     <>{parsedReceiveAmount}</>
@@ -99,7 +102,12 @@ export default function AmountAndFeeDetails({ values }: { values: SwapFormValues
                                         Estimated arrival
                                     </label>
                                     <span className="text-right">
-                                        {destinationNetworkCurrency?.status == 'insufficient_liquidity' ? "Up to 2 hours (delayed)" : " ~1-2 minutes"}
+                                        {
+                                            from?.internal_name === KnownInternalNames.Networks.PolygonMainnet ?
+                                                "Up to 1 hour"
+                                                :
+                                                destinationNetworkCurrency?.status == 'insufficient_liquidity' ? "Up to 2 hours (delayed)" : <AverageCompletionTime time={destinationNetwork?.average_completion_time} />
+                                        }
                                     </span>
                                 </div>
                             </>
@@ -118,7 +126,7 @@ export default function AmountAndFeeDetails({ values }: { values: SwapFormValues
                         y: "-100%",
                         transition: { duration: 0.4, ease: [0.36, 0.66, 0.04, 1] },
                     }}
-                    className='w-full flex items-center justify-between rounded-b-lg bg-darkblue-700  relative bottom-2 z-0 pt-4 pb-2 px-3.5 text-right'>
+                    className='w-full flex items-center justify-between rounded-b-lg bg-secondary-700  relative bottom-2 z-0 pt-4 pb-2 px-3.5 text-right'>
                     <div className='flex items-center'>
                         <p>Est. {campaignAsset?.asset} Reward</p>
                         <ClickTooltip text={<span>The amount of onboarding reward that you’ll earn. <a target='_blank' href='/rewards' className='text-primary underline hover:no-underline decoration-primary cursor-pointer'>Learn more</a></span>} />

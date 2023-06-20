@@ -12,15 +12,14 @@ type Target = '_blank' | '_self'
 type MenuLinkProps = {
     href?: string;
     children: ReactNode;
-    target: Target;
     className?: string
 }
 
-const MenuLink = forwardRef<HTMLAnchorElement, MenuLinkProps>(({ href, children, target, className }, ref) => {
+const MenuLink = forwardRef<HTMLAnchorElement, MenuLinkProps>(({ children, className }) => {
     return (
-        <a target={target} href={href} className={`px-4 py-2 text-left hover:bg-darkblue-500 whitespace-nowrap flex items-center space-x-2 ${className}`}>
+        <span className={`px-4 py-2 text-left hover:bg-secondary-500 whitespace-nowrap flex items-center space-x-2 ${className}`}>
             {children}
-        </a>
+        </span>
     )
 })
 
@@ -34,7 +33,7 @@ type MenuIemProps = {
     className?: string;
 };
 
-const Item =forwardRef<HTMLAnchorElement, MenuIemProps>(({ type, children, pathname, onClick, icon, target = '_self', className }, ref) => {
+const Item = forwardRef<HTMLAnchorElement, MenuIemProps>(({ type, children, pathname, onClick, icon, target = '_self', className }, ref) => {
     const router = useRouter();
     return (
         type == ItemType.link ?
@@ -43,11 +42,11 @@ const Item =forwardRef<HTMLAnchorElement, MenuIemProps>(({ type, children, pathn
                     pathname: pathname,
                     query: router.query
                 }}
+                target={target}
                 passHref
-                legacyBehavior
                 className={className}
             >
-                <MenuLink target={target}>
+                <MenuLink>
                     {icon}
                     <span>{children}</span>
                 </MenuLink>
@@ -55,7 +54,7 @@ const Item =forwardRef<HTMLAnchorElement, MenuIemProps>(({ type, children, pathn
             :
             <button
                 onClick={onClick}
-                className={`px-4 py-2 hover:bg-darkblue-500 text-left whitespace-nowrap w-full flex items-center space-x-2 ${className}`}
+                className={`px-4 py-2 hover:bg-secondary-500 text-left whitespace-nowrap w-full flex items-center space-x-2 ${className}`}
             >
                 {icon}
                 <span>{children}</span>

@@ -8,6 +8,7 @@ import { NextRouter } from "next/router";
 import { AuthRefreshFailedError } from "./Errors/AuthRefreshFailedError";
 import { ApiResponse, EmptyApiResponse } from "../Models/ApiResponse";
 import LayerSwapAuthApiClient from "./userAuthApiClient";
+import { DepositType } from "./NetworkSettings";
 
 export default class LayerSwapApiClient {
     static apiBaseEndpoint: string = AppSettings.LayerswapApiUri;
@@ -20,7 +21,8 @@ export default class LayerSwapApiClient {
     fetcher = (url: string) => this.AuthenticatedRequest<ApiResponse<any>>("GET", url)
 
     async GetSettingsAsync(): Promise<ApiResponse<LayerSwapSettings>> {
-        return await axios.get(LayerSwapApiClient.apiBaseEndpoint + '/api/settings').then(res => res.data);
+        const version = process.env.NEXT_PUBLIC_API_VERSION
+        return await axios.get(`${LayerSwapApiClient.apiBaseEndpoint}/api/settings?version=${version}`).then(res => res.data);
     }
 
     async CreateSwapAsync(params: CreateSwapParams): Promise<ApiResponse<CreateSwapData>> {
@@ -46,7 +48,11 @@ export default class LayerSwapApiClient {
     }
 
     async GetDepositAddress(network: string, source: DepositAddressSource): Promise<ApiResponse<DepositAddress>> {
-        return await this.AuthenticatedRequest<ApiResponse<DepositAddress>>("GET", `/swaps?network=${network }&source=${source}`);
+        return await this.AuthenticatedRequest<ApiResponse<DepositAddress>>("GET", `/swaps?network=${network}&source=${source}`);
+    }
+
+    async GenerateDepositAddress(network: string): Promise<ApiResponse<DepositAddress>> {
+        return await this.AuthenticatedRequest<ApiResponse<any>>("POST", `/deposit_addresses/${network}`);
     }
 
     async GetExchangeAccounts(): Promise<ApiResponse<UserExchangesData[]>> {
@@ -89,10 +95,6 @@ export default class LayerSwapApiClient {
         return await this.AuthenticatedRequest<ApiResponse<void>>("POST", `/whitelisted_addresses`, params);
     }
 
-    async ApplyNetworkInput(swapId: string, deposit_id: string): Promise<ApiResponse<void>> {
-        return await this.AuthenticatedRequest<ApiResponse<void>>("POST", `/swaps/${swapId}/pending_deposit`, { deposit_id });
-    }
-
     async WithdrawFromExchange(swapId: string, exchange: string, twoFactorCode?: string): Promise<ApiResponse<void>> {
         return await this.AuthenticatedRequest<ApiResponse<void>>("POST", `/swaps/${swapId}/exchange/${exchange}/withdraw${twoFactorCode ? `?twoFactorCode=${twoFactorCode}` : ''}`);
     }
@@ -103,6 +105,10 @@ export default class LayerSwapApiClient {
 
     async RewardLeaderboard(campaign: string): Promise<ApiResponse<any>> {
         return await this.AuthenticatedRequest<ApiResponse<any>>("PUT", `/campaigns/${campaign}/leaderboard`);
+    }
+
+    async GetFee(params: GetFeeParams): Promise<ApiResponse<any>> {
+        return await this.AuthenticatedRequest<ApiResponse<any>>("POST", '/swaps/amount_settings', params);
     }
 
     private async AuthenticatedRequest<T extends EmptyApiResponse>(method: Method, endpoint: string, data?: any, header?: {}): Promise<T> {
@@ -128,6 +134,7 @@ export default class LayerSwapApiClient {
 }
 
 export type DepositAddress = {
+    type: string
     address: string;
 }
 
@@ -158,15 +165,14 @@ export type NetworkAccount = {
 
 export type CreateSwapParams = {
     amount: string,
-    source_network: string | null,
-    source_exchange: string | null,
-    destination_network: string | null,
-    destination_exchange: string | null,
+    source: string,
+    destination: string,
     asset: string,
+    source_address: string,
     destination_address: string,
-    partner?: string,
-    external_id?: string,
-    refuel?: boolean
+    app_name?: string,
+    reference_id?: string,
+    refuel?: boolean,
 }
 
 export type SwapItem = {
@@ -177,8 +183,11 @@ export type SwapItem = {
     destination_address: string,
     requested_amount: number,
     message: string,
-    external_id: string,
-    partner: string,
+    reference_id: string,
+    app_name: string,
+    refuel_amount: number,
+    refuel_price: number,
+    refuel_transaction_id: string,
     source_network_asset: string,
     source_network: string,
     source_exchange: string,
@@ -187,7 +196,14 @@ export type SwapItem = {
     destination_exchange: string,
     input_transaction?: Transaction,
     output_transaction?: Transaction,
-    has_pending_deposit: boolean,
+    refuel_transaction?: RefuelTransaction;
+    has_refuel?: boolean,
+    has_sucessfull_published_tx: boolean;
+    metadata?: {
+        'STRIPE:SessionId': string
+    },
+    has_pending_deposit: boolean;
+    sequence_number: number;
 }
 
 export type AddressBookItem = {
@@ -207,6 +223,48 @@ type Transaction = {
     usd_price: number
 }
 
+type RefuelTransaction = {
+    from: string,
+    to: string,
+    created_date: string,
+    transaction_id: string,
+    explorer_url: string,
+    confirmations: number,
+    max_confirmations: number,
+    amount: number,
+    usd_price: number,
+    usd_value: number
+}
+
+export type Fee = {
+    min_amount: number,
+    max_amount: number,
+    fee_amount: number,
+    deposit_type: DepositType
+}
+
+type GetFeeParams = {
+    source: string,
+    destination: string,
+    asset: string,
+    refuel?: boolean
+}
+
+export enum PublishedSwapTransactionStatus {
+    Pending,
+    Error,
+    Completed
+}
+
+export type PublishedSwapTransactions = {
+    [key: string]: SwapTransaction
+}
+
+
+export type SwapTransaction = {
+    hash: string,
+    status: PublishedSwapTransactionStatus
+}
 
 export enum SwapType {
     OnRamp = "cex_to_network",
@@ -214,6 +272,13 @@ export enum SwapType {
     CrossChain = "network_to_network"
 }
 
+export enum WithdrawType {
+    Wallet = 'wallet',
+    Manually = 'manually',
+    Stripe = 'stripe',
+    Coinbase = 'coinbase',
+    External = 'external'
+}
 export type ConnectParams = {
     api_key: string,
     api_secret: string,
@@ -239,7 +304,7 @@ export enum SwapStatusInNumbers {
     Expired = 3,
     Delayed = 4,
     Cancelled = 5,
-    SwapsWithoutCancelled = '0&status=1&status=2&status=3&status=4'
+    SwapsWithoutCancelledAndExpired = '0&status=1&status=2&status=4'
 }
 
 export type Campaigns = {

@@ -5,13 +5,14 @@ import { LayerSwapSettings } from "../Models/LayerSwapSettings";
 import { isValidAddress } from "./addressValidator";
 import { CalculateMaxAllowedAmount, CalculateMinAllowedAmount } from "./fees";
 import { Layer } from "../Models/Layer";
+import { QueryParams } from "../Models/QueryParams";
 
-export default function MainStepValidation(settings: LayerSwapSettings): ((values: SwapFormValues) => FormikErrors<SwapFormValues>) {
+export default function MainStepValidation({ settings, query }: { settings: LayerSwapSettings, query: QueryParams }): ((values: SwapFormValues) => FormikErrors<SwapFormValues>) {
     return (values: SwapFormValues) => {
         let errors: FormikErrors<SwapFormValues> = {};
         let amount = Number(values.amount);
         let minAllowedAmount = CalculateMinAllowedAmount(values, settings.networks, settings.currencies);
-        let maxAllowedAmount = CalculateMaxAllowedAmount(values, settings.networks);
+        let maxAllowedAmount = CalculateMaxAllowedAmount(values, query?.balances, minAllowedAmount);
 
         if (!values.from) {
             (errors.from as any) = 'Select source';
@@ -36,10 +37,10 @@ export default function MainStepValidation(settings: LayerSwapSettings): ((value
         }
         if (values.to) {
             if (!values.destination_address) {
-                errors.destination_address = `Enter ${values.to.display_name} address`;
+                errors.destination_address = `Enter ${values.to?.display_name} address`;
             }
             else if (!isValidAddress(values.destination_address, values.to)) {
-                errors.destination_address = `Enter a valid ${values.to.display_name} address`;
+                errors.destination_address = `Enter a valid ${values.to?.display_name} address`;
             }
             else if (!values.from?.isExchange && isBlacklistedAddress(settings.blacklisted_addresses, values.to, values.destination_address)) {
                 errors.destination_address = `You can not transfer to this address`;

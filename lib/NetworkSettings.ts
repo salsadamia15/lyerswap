@@ -8,6 +8,11 @@ type NetworkItemSettings = {
     }
 }
 
+export enum DepositType {
+    Manual = 'manual',
+    Wallet = 'wallet'
+}
+
 const destinationOrder = [
     KnownInternalNames.Networks.StarkNetMainnet,
     KnownInternalNames.Networks.ZksyncEraMainnet,
@@ -28,6 +33,7 @@ const destinationOrder = [
 const sourceOrder = [
     KnownInternalNames.Networks.ArbitrumMainnet,
     KnownInternalNames.Networks.EthereumMainnet,
+    KnownInternalNames.Networks.StarkNetMainnet,
     KnownInternalNames.Networks.BNBChainMainnet,
     KnownInternalNames.Networks.OptimismMainnet,
     KnownInternalNames.Networks.PolygonMainnet,
@@ -50,7 +56,8 @@ export default class NetworkSettings {
     OrderInDestination?: number;
     OrderInSource?: number;
     AccountExplorerTemplate?: string;
-    Refuel?: boolean = false
+    Refuel?: boolean = false;
+    DepositType?: DepositType = DepositType.Manual
 
     public static ForceDisable?: { [network: string]: { offramp: boolean, onramp: boolean, crossChain: boolean } }
     public static KnownSettings: { [network: string]: NetworkSettings } = {};
@@ -86,8 +93,10 @@ export default class NetworkSettings {
             AccountExplorerTemplate: 'https://zkscan.io/explorer/accounts/{0}',
         };
         NetworkSettings.KnownSettings[KnownInternalNames.Networks.ZksyncEraMainnet] = {
+            ChainId:324,
         };
         NetworkSettings.KnownSettings[KnownInternalNames.Networks.ZkspaceMainnet] = {
+            ChainId:13,
             AccountExplorerTemplate: 'https://zkspace.info/account/{0}'
         };
         NetworkSettings.KnownSettings[KnownInternalNames.Networks.EthereumGoerli] = {
@@ -108,7 +117,7 @@ export default class NetworkSettings {
             ChainId: 42170,
             AccountExplorerTemplate: 'https://nova.arbiscan.io/address/{0}',
         };
-        NetworkSettings.KnownSettings[KnownInternalNames.Networks.ArbitrumGoerly] = {
+        NetworkSettings.KnownSettings[KnownInternalNames.Networks.ArbitrumGoerli] = {
             ChainId: 421613,
         };
         NetworkSettings.KnownSettings[KnownInternalNames.Networks.OptimismKovan] = {
@@ -157,7 +166,8 @@ export default class NetworkSettings {
         };
         NetworkSettings.KnownSettings[KnownInternalNames.Networks.StarkNetMainnet] = {
             AccountExplorerTemplate: 'https://starkscan.co/contract/{0}',
-            ChainId: "0x534e5f4d41494e"
+            ChainId: "0x534e5f4d41494e",
+            DepositType: DepositType.Wallet
         };
         NetworkSettings.KnownSettings[KnownInternalNames.Networks.StarkNetGoerli] = {
             AccountExplorerTemplate: 'https://goerli.voyager.online/contract/{0}',

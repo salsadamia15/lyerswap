@@ -29,8 +29,15 @@ export default function ({ hideNavbar, children }: Props) {
     })
 
     const { addressSource } = useQueryState()
-    return <div className={` ${addressSource} styled-scroll`}>
-        <div className="invisible imxMarketplace"></div>
+
+    useEffect(() => {
+        if (addressSource) window.document.body.className = addressSource
+
+        return () => { window.document.body.className = '' }
+    }, [addressSource])
+
+    return <div className='styled-scroll'>
+        <div className="invisible imxMarketplace ea7df14a1597407f9f755f05e25bab42"></div>
         <main className="styled-scroll">
             <div className="min-h-screen overflow-hidden relative font-robo">
                 <Toaster position="top-center" toastOptions={{
@@ -91,7 +98,7 @@ export default function ({ hideNavbar, children }: Props) {
                     </svg>
                 </div>
                 {hideNavbar ?? <Navbar />}
-                <div className={loading ? "animate-pulse" : ""}>
+                <div>
                     <div className="flex content-center items-center justify-center space-y-5 flex-col container mx-auto sm:px-6 max-w-lg">
                         <div className="flex flex-col w-full text-white">
                             {children}

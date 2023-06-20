@@ -6,18 +6,15 @@ import { ArrowRight, ChevronRight, ExternalLink, RefreshCcw, X } from 'lucide-re
 import SwapDetails from "./SwapDetailsComponent"
 import { useSettingsState } from "../../context/settings"
 import Image from 'next/image'
-import { useAuthState } from "../../context/authContext"
 import { classNames } from "../utils/classNames"
 import SubmitButton, { DoubleLineText } from "../buttons/submitButton"
 import { SwapHistoryComponentSceleton } from "../Sceletons"
 import StatusIcon, { } from "./StatusIcons"
 import toast from "react-hot-toast"
-import { useSwapDataUpdate } from "../../context/swap"
 import { SwapStatus } from "../../Models/SwapStatus"
 import ToggleButton from "../buttons/toggleButton";
 import Modal from "../modal/modal";
 import HeaderWithMenu from "../HeaderWithMenu";
-import { SwapCancelModal } from "../Wizard/Steps/PendingSwapsStep";
 
 function TransactionsHistory() {
   const [page, setPage] = useState(0)
@@ -30,7 +27,7 @@ function TransactionsHistory() {
   const [selectedSwap, setSelectedSwap] = useState<SwapItem | undefined>()
   const [openSwapDetailsModal, setOpenSwapDetailsModal] = useState(false)
   const canCompleteCancelSwap = selectedSwap?.status == SwapStatus.UserTransferPending
-  const [showCancelledSwaps, setShowCancelledSwaps] = useState(false)
+  const [showAllSwaps, setShowAllSwaps] = useState(false)
   const [showToggleButton, setShowToggleButton] = useState(false)
   const [openCancelConfirmModal, setOpenCancelConfirmModal] = useState(false)
 
@@ -54,7 +51,7 @@ function TransactionsHistory() {
       setLoading(true)
       const layerswapApiClient = new LayerSwapApiClient(router, '/transactions')
 
-      if (showCancelledSwaps) {
+      if (showAllSwaps) {
         const { data, error } = await layerswapApiClient.GetSwapsAsync(1)
 
         if (error) {
@@ -71,7 +68,7 @@ function TransactionsHistory() {
 
       } else {
 
-        const { data, error } = await layerswapApiClient.GetSwapsAsync(1, SwapStatusInNumbers.SwapsWithoutCancelled)
+        const { data, error } = await layerswapApiClient.GetSwapsAsync(1, SwapStatusInNumbers.SwapsWithoutCancelledAndExpired)
 
         if (error) {
           toast.error(error.message);
@@ -85,7 +82,7 @@ function TransactionsHistory() {
         setLoading(false)
       }
     })()
-  }, [router.query, showCancelledSwaps])
+  }, [router.query, showAllSwaps])
 
   const handleLoadMore = useCallback(async () => {
     //TODO refactor page change
@@ -113,11 +110,11 @@ function TransactionsHistory() {
   }
 
   const handleToggleChange = (value: boolean) => {
-    setShowCancelledSwaps(value)
+    setShowAllSwaps(value)
   }
 
   return (
-    <div className='bg-darkblue-900 sm:shadow-card rounded-lg mb-6 w-full text-white overflow-hidden relative min-h-[550px]'>
+    <div className='bg-secondary-900 sm:shadow-card rounded-lg mb-6 w-full text-white overflow-hidden relative min-h-[550px]'>
       <HeaderWithMenu goBack={handleGoBack} />
       {
         page == 0 && loading ?
@@ -130,13 +127,13 @@ function TransactionsHistory() {
                     {showToggleButton && <div className="flex justify-end mb-2">
                       <div className='flex space-x-2'>
                         <p className='flex items-center text-xs md:text-sm font-medium'>
-                          Show cancelled swaps
+                          Show all swaps
                         </p>
-                        <ToggleButton onChange={handleToggleChange} value={showCancelledSwaps} />
+                        <ToggleButton onChange={handleToggleChange} value={showAllSwaps} />
                       </div>
                     </div>}
                     <div className="max-h-[450px] styled-scroll overflow-y-auto ">
-                      <table className="w-full divide-y divide-darkblue-500">
+                      <table className="w-full divide-y divide-secondary-500">
                         <thead className="text-primary-text">
                           <tr>
                             <th scope="col" className="text-left text-sm font-semibold">
@@ -180,7 +177,7 @@ function TransactionsHistory() {
 
                               <td
                                 className={classNames(
-                                  index === 0 ? '' : 'border-t border-darkblue-500',
+                                  index === 0 ? '' : 'border-t border-secondary-500',
                                   'relative text-sm text-white table-cell'
                                 )}
                               >
@@ -209,11 +206,11 @@ function TransactionsHistory() {
                                     }
                                   </div>
                                 </div>
-                                {index !== 0 ? <div className="absolute right-0 left-6 -top-px h-px bg-darkblue-500" /> : null}
+                                {index !== 0 ? <div className="absolute right-0 left-6 -top-px h-px bg-secondary-500" /> : null}
 
                               </td>
                               <td className={classNames(
-                                index === 0 ? '' : 'border-t border-darkblue-500',
+                                index === 0 ? '' : 'border-t border-secondary-500',
                                 'relative text-sm table-cell'
                               )}>
                                 <span className="flex items-center">
@@ -223,7 +220,7 @@ function TransactionsHistory() {
                               </td>
                               <td
                                 className={classNames(
-                                  index === 0 ? '' : 'border-t border-darkblue-500',
+                                  index === 0 ? '' : 'border-t border-secondary-500',
                                   'px-3 py-3.5 text-sm text-white table-cell'
                                 )}
                               >
@@ -277,32 +274,23 @@ function TransactionsHistory() {
                         canCompleteCancelSwap &&
                         <div className="text-white text-sm mt-6 space-y-3">
                           <div className="flex flex-row text-white text-base space-x-2">
-                            <div className='basis-1/3'>
-                              <SubmitButton text_align="left" buttonStyle="outline" onClick={async () => setOpenCancelConfirmModal(true)} isDisabled={false} isSubmitting={false} icon={<X className='h-5 w-5' />}>
-                                <DoubleLineText
-                                  colorStyle='mltln-text-dark'
-                                  primaryText='Cancel'
-                                  secondarytext='the swap'
-                                  reversed={true}
-                                />
-                              </SubmitButton>
-                            </div>
-                            <div className='basis-2/3'>
-                              <SubmitButton button_align='right' text_align="left" onClick={() => router.push(`/swap/${selectedSwap.id}`)} isDisabled={false} isSubmitting={false} icon={<ExternalLink className='h-5 w-5' />}>
-                                <DoubleLineText
-                                  colorStyle='mltln-text-light'
-                                  primaryText="Complete"
-                                  secondarytext='the swap'
-                                  reversed={true}
-                                />
-                              </SubmitButton>
-                            </div>
+                            <SubmitButton
+                              text_align="center"
+                              onClick={() => router.push(`/swap/${selectedSwap.id}`)}
+                              isDisabled={false}
+                              isSubmitting={false}
+                              icon={
+                                <ExternalLink
+                                  className='h-5 w-5' />
+                              }
+                            >
+                              Complete the swap
+                            </SubmitButton>
                           </div>
                         </div>
                       }
                     </div>
                   </Modal>
-                  <SwapCancelModal onCancel={() => router.reload()} swapToCancel={selectedSwap} openCancelConfirmModal={openCancelConfirmModal} setOpenCancelConfirmModal={setOpenCancelConfirmModal} />
                 </div>
                 : <div className="absolute top-1/2 right-0 text-center w-full">
                   There are no transactions for this account

@@ -3,7 +3,6 @@
 import * as React from "react"
 import { Command as CommandPrimitive } from "cmdk"
 import { classNames } from "../utils/classNames"
-import Modal, { ModalProps } from "../modal/modal"
 
 const Command = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive>,
@@ -20,21 +19,6 @@ const Command = React.forwardRef<
 ))
 Command.displayName = CommandPrimitive.displayName
 
-interface CommandModalProps extends ModalProps { }
-
-const CommandModal = ({ children, ...props }: CommandModalProps) => {
-  return (
-    <Modal {...props}>
-      {
-        props.show &&
-        <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-primary-text [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
-          {children}
-        </Command>
-      }
-    </Modal>
-  )
-}
-
 const CommandWrapper = React.forwardRef<
   React.ElementRef<typeof Command>,
   React.ComponentPropsWithoutRef<typeof Command>
@@ -48,7 +32,7 @@ const CommandInput = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Input>,
   React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>
 >(({ className, ...props }, ref) => (
-  <div className="relative z-0 flex items-center mt-1 mb-2 pl-2 border-b border-darkblue-500" cmdk-input-wrapper="">
+  <div className="relative z-0 flex items-center mt-1 mb-2 pl-2 border-b border-secondary-500" cmdk-input-wrapper="">
     <CommandPrimitive.Input placeholder=" " ref={ref} id="floating_standard"
       {...props} className={classNames(
         "peer/draft placeholder:text-transparent border-0 border-b-0 border-primary-text focus:border-primary-text appearance-none block py-2.5 px-0 w-full h-11 bg-transparent text-lg outline-none focus:outline-none focus:ring-0 disabled:cursor-not-allowed disabled:opacity-50",
@@ -111,7 +95,7 @@ const CommandSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.Separator
     ref={ref}
-    className={classNames("-mx-1 h-px bg-darkblue-500", className)}
+    className={classNames("-mx-1 h-px bg-secondary-500", className)}
     {...props}
   />
 ))
@@ -124,7 +108,7 @@ const CommandItem = React.forwardRef<
   <CommandPrimitive.Item
     ref={ref}
     className={classNames(
-      "relative cursor-pointer flex select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-darkblue-700 aria-selected:text-white",
+      "relative cursor-pointer flex select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-secondary-700 aria-selected:text-white",
       className,
       props.disabled && "opacity-30 cursor-not-allowed",
     )}

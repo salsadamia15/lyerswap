@@ -6,7 +6,6 @@ import { useFormWizardaUpdate, useFormWizardState } from '../context/formWizardP
 import { AuthStep } from '../Models/Wizard';
 import CodeStep from './Wizard/Steps/CodeStep';
 import EmailStep from './Wizard/Steps/EmailStep';
-import { AllPendingSwapStep } from './Wizard/Steps/PendingSwapsStep';
 import Wizard from './Wizard/Wizard';
 import WizardItem from './Wizard/WizardItem';
 
@@ -26,12 +25,12 @@ function GuestCard() {
         <div className='mt-10'>
             <Wizard>
                 <WizardItem StepName={AuthStep.Email} fitHeight>
-                    <div className={noToolBar ? `p-6 border border-darkblue-500 rounded-md` : "pt-6"}>
+                    <div className={noToolBar ? `p-6 border border-secondary-500 rounded-md` : "pt-6"}>
                         <EmailStep OnNext={GoToCodeStep} disclosureLogin />
                     </div>
                 </WizardItem>
                 <WizardItem StepName={AuthStep.Code} GoBack={GoBackToEmailStep} fitHeight>
-                    <div className={noToolBar ? `p-6 border border-darkblue-500 rounded-md` : "pt-6"}>
+                    <div className={noToolBar ? `p-6 border border-secondary-500 rounded-md` : "pt-6"}>
                         {
                             goBack &&
                             <button onClick={goBack} className="justify-self-start text-xs text-primary-text flex items-center hover:text-primary-text/70 cursor-pointer space-x-1" style={{ visibility: false ? 'hidden' : 'visible' }}>
@@ -41,9 +40,6 @@ function GuestCard() {
                         }
                         <CodeStep OnNext={CodeOnNext} disclosureLogin />
                     </div>
-                </WizardItem>
-                <WizardItem StepName={AuthStep.PendingSwaps} fitHeight>
-                    <AllPendingSwapStep />
                 </WizardItem>
             </Wizard>
         </div>

@@ -12,6 +12,8 @@ import { SwapFormValues } from './DTOs/SwapFormValues';
 import { useFormikContext } from 'formik';
 import { SwapCreateStep } from '../Models/Wizard';
 import { useFormWizardaUpdate } from '../context/formWizardProvider';
+import { useSettingsState } from '../context/settings';
+import KnownInternalNames from '../lib/knownIds';
 
 type Props = {
     OnSuccess: () => Promise<void>,
@@ -24,7 +26,10 @@ const OfframpAccountConnectStep: FC<Props> = ({ OnSuccess }) => {
 
     const { to } = values || {}
     const destination = values?.to
-    const { oauth_connect_url } = (destination?.isExchange && destination) || {}
+    const settings = useSettingsState()
+    const oauthProviders = settings?.discovery?.o_auth_providers
+    const coinbaseOauthProvider = oauthProviders?.find(p => p.provider === KnownInternalNames.Exchanges.Coinbase)
+    const { oauth_connect_url } = (destination?.isExchange && (coinbaseOauthProvider || {})) || {}
     const [authWindow, setAuthWindow] = useState<Window>()
     const [loading, setLoading] = useState(false)
     const { goToStep } = useFormWizardaUpdate<SwapCreateStep>()
@@ -83,7 +88,7 @@ const OfframpAccountConnectStep: FC<Props> = ({ OnSuccess }) => {
                         </div>
                         <div className="w-full color-white">
                             <div className="flex justify-center items-center m-7 space-x-3">
-                                <div className="flex-shrink-0 w-16 border-2 rounded-md border-darkblue-500 relative">
+                                <div className="flex-shrink-0 w-16 border-2 rounded-md border-secondary-500 relative">
                                     <Image
                                         src="/images/coinbaseWhite.png"
                                         alt="Exchange Logo"
@@ -94,7 +99,7 @@ const OfframpAccountConnectStep: FC<Props> = ({ OnSuccess }) => {
                                     />
                                 </div>
                                 <ArrowLeftRight />
-                                <div className="flex-shrink-0 w-16 border-2 rounded-md border-darkblue-500 relative">
+                                <div className="flex-shrink-0 w-16 border-2 rounded-md border-secondary-500 relative">
                                     <Image
                                         src="/images/layerswapWhite.png"
                                         alt="Layerswap Logo"

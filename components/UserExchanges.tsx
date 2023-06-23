@@ -1,19 +1,17 @@
 import { useRouter } from "next/router"
 import { useCallback, useEffect, useState } from "react"
-import { ArrowLeft, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { Combobox } from "@headlessui/react"
 import { useSettingsState } from "../context/settings"
 import LayerswapApiClient from "../lib/layerSwapApiClient"
 import Image from 'next/image'
-import ConnectApiKeyExchange from "./connectApiKeyExchange"
-import LayerswapMenu from "./LayerswapMenu"
+import ConnectApiKeyExchange from "./Swap/Form/connectApiKeyExchange"
 import SubmitButton from "./buttons/submitButton";
 import { useAuthState } from "../context/authContext";
 import toast from "react-hot-toast";
 import shortenAddress, { shortenEmail } from "./utils/ShortenAddress";
 import { ExchangesComponentSceleton } from "./Sceletons";
 import KnownInternalNames from "../lib/knownIds";
-import GoHomeButton from "./utils/GoHome";
 import ClickTooltip from "./Tooltips/ClickTooltip";
 import ConnectOauthExchange from "./connectOauthExchange";
 import Modal from "./modal/modal";
@@ -192,8 +190,8 @@ function UserExchanges() {
                                                                     <>
                                                                         {
                                                                             item.is_connected ?
-                                                                                <SubmitButton onClick={() => { setExchangeToDisconnect(item); setOpenExchangeToDisconnectModal(true) }} buttonStyle="outline" isDisabled={false} isSubmitting={exchangeLoading?.internal_name === item.internal_name}>Disconnect</SubmitButton>
-                                                                                : <SubmitButton onClick={() => handleConnectExchange(item)} buttonStyle="filled" isDisabled={false} isSubmitting={exchangeLoading?.internal_name === item.internal_name}>Connect</SubmitButton>
+                                                                                <SubmitButton onClick={() => { setExchangeToDisconnect(item); setOpenExchangeToDisconnectModal(true) }} buttonStyle="outline" isDisabled={false} isSubmitting={exchangeLoading?.internal_name === item?.internal_name}>Disconnect</SubmitButton>
+                                                                                : <SubmitButton onClick={() => handleConnectExchange(item)} buttonStyle="filled" isDisabled={false} isSubmitting={exchangeLoading?.internal_name === item?.internal_name}>Connect</SubmitButton>
                                                                         }
                                                                     </>
                                                                 </div>

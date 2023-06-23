@@ -16,8 +16,6 @@ import SubmitButton from "../../../buttons/submitButton";
 import FailIcon from "../../../icons/FailIcon";
 import { PublishedSwapTransactionStatus, PublishedSwapTransactions } from "../../../../lib/layerSwapApiClient";
 import { useSwapDataUpdate } from "../../../../context/swap";
-import { useFormWizardaUpdate } from "../../../../context/formWizardProvider";
-import { SwapWithdrawalStep } from "../../../../Models/Wizard";
 import { toast } from "react-hot-toast";
 import WalletIcon from "../../../icons/WalletIcon";
 
@@ -230,7 +228,6 @@ const TransferErc20Button: FC<TransferERC20ButtonProps> = ({
     const { mutateSwap, setSwapPublishedTx } = useSwapDataUpdate()
     const { address } = useAccount();
     const [buttonClicked, setButtonClicked] = useState(false)
-    const { goToStep } = useFormWizardaUpdate()
 
     const depositAddress = userDestinationAddress === address ?
         managedDepositAddress : generatedDepositAddress
@@ -266,7 +263,6 @@ const TransferErc20Button: FC<TransferERC20ButtonProps> = ({
         onSuccess: async (trxRcpt) => {
             setApplyingTransaction(true)
             setSwapPublishedTx(swapId, PublishedSwapTransactionStatus.Completed, trxRcpt.transactionHash);
-            goToStep(SwapWithdrawalStep.SwapProcessing)
             setApplyingTransaction(false)
         }
     })

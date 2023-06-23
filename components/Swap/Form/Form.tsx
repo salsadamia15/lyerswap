@@ -10,12 +10,12 @@ import { SwapFormValues } from "../../DTOs/SwapFormValues";
 import { Partner } from "../../../Models/Partner";
 import AmountAndFeeDetails from "../../DisclosureComponents/amountAndFeeDetailsComponent";
 import Modal from "../../modal/modal";
-import OfframpAccountConnectStep from "../../OfframpAccountConnect";
+import CoinbaseAccountConnect from "./CoinbaseAccountConnect";
 import toast from "react-hot-toast";
 import { useRouter } from "next/router";
 import { KnownErrorCode } from "../../../Models/ApiError";
 import { useSwapDataState, useSwapDataUpdate } from "../../../context/swap";
-import ConnectApiKeyExchange from "../../connectApiKeyExchange";
+import ConnectApiKeyExchange from "./connectApiKeyExchange";
 import { useQueryState } from "../../../context/query";
 import { useSettingsState } from "../../../context/settings";
 import { isValidAddress } from "../../../lib/addressValidator";
@@ -31,7 +31,7 @@ import ToggleButton from "../../buttons/toggleButton";
 import { ArrowUpDown, Fuel } from 'lucide-react'
 import { useAuthState } from "../../../context/authContext";
 import WarningMessage from "../../WarningMessage";
-import { GetDefaultNetwork, GetNetworkCurrency } from "../../../helpers/settingsHelper";
+import { FilterDestinationLayers, FilterSourceLayers, GetDefaultNetwork, GetNetworkCurrency } from "../../../helpers/settingsHelper";
 import KnownInternalNames from "../../../lib/knownIds";
 import { Widget } from "../../Widget/Index";
 import { classNames } from "../../utils/classNames";
@@ -57,7 +57,7 @@ const SwapForm: FC<Props> = ({ partner, isPartnerWallet, loading }) => {
     const { authData } = useAuthState()
     const layerswapApiClient = new LayerSwapApiClient()
     const address_book_endpoint = authData?.access_token ? `/address_book/recent` : null
-    const { data: address_book, mutate, isValidating } = useSWR<ApiResponse<AddressBookItem[]>>(address_book_endpoint, layerswapApiClient.fetcher, { dedupingInterval: 60000 })
+    const { data: address_book } = useSWR<ApiResponse<AddressBookItem[]>>(address_book_endpoint, layerswapApiClient.fetcher, { dedupingInterval: 60000 })
 
     const [openExchangeConnect, setOpenExchangeConnect] = useState(false)
     const [exchangeAccount, setExchangeAccount] = useState<UserExchangesData>()
@@ -72,8 +72,7 @@ const SwapForm: FC<Props> = ({ partner, isPartnerWallet, loading }) => {
     const lockAddress =
         (values.destination_address && values.to)
         && isValidAddress(values.destination_address, values.to)
-        && ((query.lockAddress && (query.addressSource !== "imxMarketplace" || settings.validSignatureisPresent)));
-
+        && (((query.lockAddress || query.hideAddress) && (query.addressSource !== "imxMarketplace" || settings.validSignatureisPresent)));
 
     const actionDisplayName = query?.actionButtonText || "Swap now"
 
@@ -140,10 +139,11 @@ const SwapForm: FC<Props> = ({ partner, isPartnerWallet, loading }) => {
 
     const previouslySelectedDestination = useRef(destination);
 
+    //If destination changed to exchange, remove destination_address
     useEffect(() => {
-        if (destination?.isExchange != previouslySelectedDestination.current?.isExchange
+        if ((destination?.isExchange != previouslySelectedDestination.current?.isExchange
             || (destination?.isExchange && previouslySelectedDestination.current?.isExchange && destination?.internal_name != previouslySelectedDestination.current?.internal_name)
-            || destination && !isValidAddress(values.destination_address, destination)) {
+            || destination && !isValidAddress(values.destination_address, destination)) && !lockAddress) {
             setFieldValue("destination_address", '')
             setDepositeAddressIsfromAccount(false)
         }
@@ -161,39 +161,35 @@ const SwapForm: FC<Props> = ({ partner, isPartnerWallet, loading }) => {
         setValues({ ...values, from: values.to, to: values.from }, true)
     }, [values])
 
-    const valuesSwapperFiltering = () => {
-        const sourceCurrencyIsAvailable = source
-            ?.assets
-            ?.some(a => a.network
-                ?.currencies
-                ?.some(c => c.is_deposit_enabled
-                    && c.is_withdrawal_enabled))
 
-        const destCurrencyIsAvailable = destination
-            ?.assets
-            ?.some(a => a.network
-                ?.currencies
-                ?.some(c => c.is_deposit_enabled
-                    && c.is_withdrawal_enabled))
 
-        if (query.lockTo || query.lockFrom || query.hideTo || query.hideFrom) {
-            setValuesSwapperDisabled(true)
-        }
-        else if ((source && !destination && sourceCurrencyIsAvailable)
-            || (destination && !source && destCurrencyIsAvailable)) {
-            setValuesSwapperDisabled(false)
-        }
-        else if (source && destination && sourceCurrencyIsAvailable && destCurrencyIsAvailable) setValuesSwapperDisabled(false)
-        else setValuesSwapperDisabled(true)
-    }
     const [animate, cycle] = useCycle(
         { rotate: 0 },
         { rotate: 180 }
     );
 
+    const lockedCurrency = query?.lockAsset ? settings.currencies?.find(c => c?.asset?.toUpperCase() === asset?.toUpperCase()) : null
+
+
     useEffect(() => {
-        valuesSwapperFiltering()
-    }, [source, destination])
+
+        const filteredSourceLayers = FilterSourceLayers(settings.layers, source, lockedCurrency);
+        const filteredDestinationLayers = FilterDestinationLayers(settings.layers, destination, lockedCurrency);
+
+        const sourceCanBeSwapped = filteredDestinationLayers.some(l=>l.internal_name === source?.internal_name)
+        const destinationCanBeSwapped = filteredSourceLayers.some(l=>l.internal_name === destination?.internal_name)
+
+        if (query.lockTo || query.lockFrom || query.hideTo || query.hideFrom) {
+            setValuesSwapperDisabled(true)
+            return ;
+        }
+        if(!(sourceCanBeSwapped|| destinationCanBeSwapped)){
+            setValuesSwapperDisabled(true)
+            return ;
+        }
+        setValuesSwapperDisabled(false)
+        
+    }, [source, destination, query, settings, lockedCurrency])
 
     const destinationNetwork = GetDefaultNetwork(destination, values?.currency?.asset)
     const destination_native_currency = !destination?.isExchange && destinationNetwork?.native_currency
@@ -204,6 +200,12 @@ const SwapForm: FC<Props> = ({ partner, isPartnerWallet, loading }) => {
         || ''
     const parts = averageTimeString?.split(":");
     const averageTimeInMinutes = parts && parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10) + parseInt(parts[2]) / 60
+
+    const hideAddress = query?.hideAddress
+        && query?.to
+        && query?.destAddress
+        && (query?.lockTo || query?.hideTo)
+        && isValidAddress(query?.destAddress, destination)
 
     return <>
         <Form className={`h-full ${(loading || isSubmitting) ? 'pointer-events-none' : 'pointer-events-auto'}`} >
@@ -230,7 +232,7 @@ const SwapForm: FC<Props> = ({ partner, isPartnerWallet, loading }) => {
                         <AmountField />
                     </div>
                     {
-                        !query?.hideAddress &&
+                        !hideAddress &&
                         <div className="w-full mb-3.5 leading-4">
                             <label htmlFor="destination_address" className="block font-semibold text-primary-text text-sm">
                                 {`To ${values?.to?.display_name || ''} address`}
@@ -316,7 +318,7 @@ const SwapForm: FC<Props> = ({ partner, isPartnerWallet, loading }) => {
                 <Modal setShow={setOpenExchangeConnect} show={openExchangeConnect} header={`Connect ${values?.to?.display_name}`} >
                     {
                         (destination?.authorization_flow) === "o_auth2" ?
-                            <OfframpAccountConnectStep OnSuccess={async () => { await handleExchangeConnected(); setOpenExchangeConnect(false) }} />
+                            <CoinbaseAccountConnect OnSuccess={async () => { await handleExchangeConnected(); setOpenExchangeConnect(false) }} />
                             : <ConnectApiKeyExchange exchange={destination} onSuccess={async () => { handleExchangeConnected(); setOpenExchangeConnect(false) }} />
                     }
                 </Modal>
